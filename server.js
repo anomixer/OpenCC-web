@@ -24,10 +24,14 @@ const storage = multer.diskStorage({
   }
 });
 
+// 根據部署環境設定檔案大小限制
+const isRender = process.env.RENDER === 'true' || process.env.NODE_ENV === 'production';
+const maxFileSize = isRender ? 80 * 1024 * 1024 : 100 * 1024 * 1024; // Render: 80MB, 本地: 100MB
+
 const upload = multer({ 
   storage: storage,
   limits: {
-    fileSize: 100 * 1024 * 1024 // 100MB 限制
+    fileSize: maxFileSize
   }
 });
 
@@ -54,7 +58,16 @@ const conversionConfigs = {
 
 // API 路由：取得可用的轉換設定
 app.get('/api/configs', (req, res) => {
-  res.json(Object.keys(conversionConfigs));
+  const configs = Object.keys(conversionConfigs);
+  const isRender = process.env.RENDER === 'true' || process.env.NODE_ENV === 'production';
+  
+  res.json({
+    configs: configs,
+    limits: {
+      maxFileSize: isRender ? '80MB' : '100MB',
+      platform: isRender ? 'Render (Free Tier)' : 'Local/Unlimited'
+    }
+  });
 });
 
 // API 路由：文字轉換
@@ -212,10 +225,19 @@ setInterval(async () => {
 
 // 啟動伺服器
 app.listen(PORT, () => {
+  const isRender = process.env.RENDER === 'true' || process.env.NODE_ENV === 'production';
+  
   console.log(`🚀 OpenCC 網站服務已啟動`);
   console.log(`📍 網址: http://localhost:${PORT}`);
   console.log(`📁 上傳目錄: uploads/`);
   console.log(`⏰ 清理任務: 每 30 分鐘`);
+  
+  if (isRender) {
+    console.log(`🌐 部署平台: Render (Free Tier)`);
+    console.log(`📏 檔案限制: 80MB`);
+  } else {
+    console.log(`💻 開發模式: 無檔案限制`);
+  }
 });
 
 module.exports = app;

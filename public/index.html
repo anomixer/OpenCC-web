@@ -704,6 +704,7 @@
                         <div class="drop-zone-icon">📁</div>
                         <p><span data-lang="drop-zone-text">拖放檔案到這裡，或點擊選擇檔案</span></p>
                         <p class="drop-zone-hint"><span data-lang="drop-zone-hint">支援所有文字類的檔案格式，可同時處理多個檔案</span></p>
+                        <p class="drop-zone-limit" id="file-size-limit" style="color: #6c757d; font-size: 0.9em; margin-top: 5px;"></p>
                     </div>
                 </div>
 
@@ -1521,11 +1522,21 @@
             // 初始化拖放功能
             setupDragAndDrop();
             
-            // 載入可用的轉換設定
+            // 載入可用的轉換設定和限制
             fetch('/api/configs')
                 .then(response => response.json())
-                .then(configs => {
-                    console.log('可用的轉換設定:', configs);
+                .then(data => {
+                    console.log('可用的轉換設定:', data.configs);
+                    
+                    // 顯示檔案大小限制
+                    const limitElement = document.getElementById('file-size-limit');
+                    if (limitElement && data.limits) {
+                        const currentLang = localStorage.getItem('language') || 'zh-TW';
+                        const limitText = currentLang === 'zh-CN' 
+                            ? `文件大小限制: ${data.limits.maxFileSize}`
+                            : `檔案大小限制: ${data.limits.maxFileSize}`;
+                        limitElement.textContent = limitText;
+                    }
                 })
                 .catch(error => {
                     console.error('載入設定失敗:', error);
