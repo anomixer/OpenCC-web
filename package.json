@@ -17,6 +17,6 @@
     "express": "^5.1.0",
     "fs-extra": "^11.3.2",
     "multer": "^2.0.2",
-    "opencc": "file:../opencc"
+    "opencc": "file:./opencc"
   }
 }
