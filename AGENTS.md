@@ -173,22 +173,6 @@ git push
 - 檔案大小：4.5MB
 - 需優化大型檔案處理
 
-#### Cloudflare Pages + Functions
-```bash
-# 1. 連接 GitHub 帳號到 Cloudflare
-# 2. 選擇 "Create application" → "Pages"
-# 3. 連接 OpenCC-web repo
-# 4. 設定建置指令：npm install
-# 5. 設定輸出目錄：public
-# 6. 啟用 Functions 功能
-```
-**優點**: 全球 CDN、免費額度大、邊緣計算
-**限制**:
-- 請求體大小：5MB
-- 響應體大小：25MB
-- 函式執行時間：30秒
-- **不適合無檔案限制場景**
-
 #### Cloudflare Workers (純 Serverless)
 ```bash
 # 需重構為 Workers 格式
@@ -202,7 +186,7 @@ git push
 - 請求體大小：100MB (免費版)
 - 響應體大小：25MB
 - 執行時間：10ms (免費版) / 30ms (付費版)
-- **需大幅重構代碼**
+- **需大幅重構代碼，不適合無檔案限制場景**
 
 ### 部署平台比較表
 
@@ -211,18 +195,15 @@ git push
 | Railway | 無限制 | 無限制 | $5/月 | ⭐⭐⭐⭐⭐ |
 | Render | 100MB | 無限制 | 無限請求 | ⭐⭐⭐⭐ |
 | Vercel | 4.5MB | 10秒 | 100GB | ⭐⭐ |
-| Cloudflare Pages | 5MB | 30秒 | 500MB | ⭐⭐ |
 | Cloudflare Workers | 100MB | 10ms | 100萬請求 | ⭐ |
 
 ### 環境變數設定
 - `PORT`: 服務端口（預設 3000）
 - `NODE_ENV`: 生產環境設為 production
 
-### Cloudflare 部署優化建議
+### 部署優化建議
 
-如需使用 Cloudflare 平台，建議以下優化方案：
-
-#### 方案1：檔案大小限制
+#### Vercel 檔案大小限制優化
 ```javascript
 // 在 server.js 中加入檔案大小檢查
 const upload = multer({ 
@@ -233,16 +214,16 @@ const upload = multer({
 });
 ```
 
-#### 方案2：分塊處理
+#### 分塊處理方案
 ```javascript
 // 將大檔案分割為小塊處理
 const CHUNK_SIZE = 1024 * 1024; // 1MB chunks
 ```
 
-#### 方案3：外部儲存
+#### 外部儲存方案
 ```javascript
-// 使用 Cloudflare R2 或 AWS S3 儲存大檔案
-// 僅在 Cloudflare 處理轉換邏輯
+// 使用 AWS S3 或其他雲端儲存大檔案
+// 僅在應用伺服器處理轉換邏輯
 ```
 
 ### Docker 部署（可選）
