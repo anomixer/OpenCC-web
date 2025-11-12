@@ -227,6 +227,20 @@ const upload = multer({
     fileSize: maxFileSize
   }
 });
+
+// API 回傳平台資訊供前端顯示
+app.get('/api/configs', (req, res) => {
+  const configs = Object.keys(conversionConfigs);
+  const isRender = process.env.RENDER === 'true' || process.env.NODE_ENV === 'production';
+  
+  res.json({
+    configs: configs,
+    limits: {
+      maxFileSize: isRender ? '80MB' : '100MB',
+      platform: isRender ? 'Render (Free Tier)' : 'Local/Unlimited'
+    }
+  });
+});
 ```
 
 #### Vercel 檔案大小限制優化
@@ -260,6 +274,12 @@ const CHUNK_SIZE = 1024 * 1024; // 1MB chunks
 3. **檔案限制**: 建議 80MB，避免觸及平台 100MB 硬限制
 4. **休眠問題**: 免費版 15分鐘無活動後休眠，首次訪問需等待
 5. **自動部署**: GitHub 推送自動觸發重新部署
+
+#### 智能UI顯示邏輯
+- **本地開發**: 不顯示檔案限制，保持「無限制」體驗
+- **部署平台**: 自動顯示平台資訊和檔案限制
+- **動態偵測**: 根據 `api/configs` 回應決定顯示內容
+- **使用者友好**: 避免誤導，提供準確的限制資訊
 
 ### Docker 部署（可選）
 ```dockerfile
@@ -309,3 +329,7 @@ CMD ["npm", "start"]
 - 上傳至 GitHub (https://github.com/anomixer/OpenCC-web)
 - 完成完整文檔與部署指南
 - 更新開發指南為現代化 Git Submodule 工作流程
+- 2025-11-13：成功部署至 Render 平台 (https://opencc-web.onrender.com/)
+- 實作智能UI顯示邏輯：本地開發不顯示限制，部署平台顯示實際限制
+- 修復誤導性「無限制檔案長度」顯示問題
+- 新增平台偵測與動態檔案限制提示功能
