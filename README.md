@@ -17,7 +17,7 @@ Open Chinese Convert 網頁介面 - 支援繁簡中文轉換的線上服務
 - **後端**：Node.js + Express + OpenCC
 - **前端**：原生 HTML/CSS/JavaScript
 - **檔案處理**：Multer + 串流處理
-- **部署**：支援 Railway/Render/Vercel
+- **部署**：支援 Railway/Render/Vercel/Cloudflare
 
 ## 📦 安裝與使用
 
@@ -46,9 +46,37 @@ git submodule update --remote
 ## 🌐 部署
 
 ### 推薦部署平台
-- **Railway**：無檔案限制，支援 Node.js
-- **Render**：免費版支援完整功能
-- **Vercel**：需優化大型檔案處理
+
+#### Railway (最推薦)
+- **優點**：無檔案限制，支援 Node.js 完整功能
+- **免費額度**：$5/月
+- **部署**：連接 GitHub 即可自動部署
+
+#### Render
+- **優點**：免費版支援完整功能
+- **限制**：檔案上傳 100MB
+- **部署**：自動部署，支援自訂域名
+
+#### Vercel
+- **優點**：部署簡單，全球 CDN
+- **限制**：函式執行時間 10 秒，檔案 4.5MB
+- **注意**：需優化大型檔案處理
+
+#### Cloudflare Pages + Functions
+- **優點**：全球 CDN，免費額度大
+- **限制**：
+  - 請求體大小：5MB
+  - 響應體大小：25MB  
+  - 函式執行時間：30秒
+- **注意**：不適合無檔案限制的場景
+
+#### Cloudflare Workers
+- **優點**：極致效能，邊緣計算
+- **限制**：
+  - 請求體大小：100MB (免費版)
+  - 響應體大小：25MB
+  - 執行時間：10ms (免費版) / 30ms (付費版)
+- **注意**：需重構為 Workers API 格式
 
 ### 環境變數
 - `PORT`：服務端口（預設 3000）

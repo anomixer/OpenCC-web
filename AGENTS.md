@@ -139,7 +139,7 @@ git push
 
 ### 推薦部署平台
 
-#### Railway (推薦)
+#### Railway (最推薦)
 ```bash
 # 1. 連接 GitHub 帳號到 Railway
 # 2. 選擇 OpenCC-web repo
@@ -147,7 +147,7 @@ git push
 # 4. 設定環境變數（可選）
 # 5. 部署完成，取得 Railway URL
 ```
-**優點**: 無檔案大小限制、支援 Node.js 完整功能、免費額度充足
+**優點**: 無檔案大小限制、支援 Node.js 完整功能、免費額度 $5/月
 
 #### Render
 ```bash
@@ -159,18 +159,91 @@ git push
 # 6. 部署完成
 ```
 **優點**: 免費版支援完整功能、自動部署
+**限制**: 檔案上傳 100MB
 
 #### Vercel (需優化)
 ```bash
 # 1. 安裝 Vercel CLI
 # 2. 執行 vercel --prod
 # 3. 按提示設定專案
-# 注意：Vercel 有檔案大小限制，需優化大檔案處理
 ```
+**優點**: 部署簡單、全球 CDN
+**限制**: 
+- 函式執行時間：10秒
+- 檔案大小：4.5MB
+- 需優化大型檔案處理
+
+#### Cloudflare Pages + Functions
+```bash
+# 1. 連接 GitHub 帳號到 Cloudflare
+# 2. 選擇 "Create application" → "Pages"
+# 3. 連接 OpenCC-web repo
+# 4. 設定建置指令：npm install
+# 5. 設定輸出目錄：public
+# 6. 啟用 Functions 功能
+```
+**優點**: 全球 CDN、免費額度大、邊緣計算
+**限制**:
+- 請求體大小：5MB
+- 響應體大小：25MB
+- 函式執行時間：30秒
+- **不適合無檔案限制場景**
+
+#### Cloudflare Workers (純 Serverless)
+```bash
+# 需重構為 Workers 格式
+# 1. 建立 wrangler.toml
+# 2. 重構 server.js 為 Workers API
+# 3. 使用 Durable Objects 處理狀態
+# 4. 部署：wrangler deploy
+```
+**優點**: 極致效能、邊緣計算
+**限制**:
+- 請求體大小：100MB (免費版)
+- 響應體大小：25MB
+- 執行時間：10ms (免費版) / 30ms (付費版)
+- **需大幅重構代碼**
+
+### 部署平台比較表
+
+| 平台 | 檔案限制 | 執行時間 | 免費額度 | 適合性 |
+|------|----------|----------|----------|--------|
+| Railway | 無限制 | 無限制 | $5/月 | ⭐⭐⭐⭐⭐ |
+| Render | 100MB | 無限制 | 無限請求 | ⭐⭐⭐⭐ |
+| Vercel | 4.5MB | 10秒 | 100GB | ⭐⭐ |
+| Cloudflare Pages | 5MB | 30秒 | 500MB | ⭐⭐ |
+| Cloudflare Workers | 100MB | 10ms | 100萬請求 | ⭐ |
 
 ### 環境變數設定
 - `PORT`: 服務端口（預設 3000）
 - `NODE_ENV`: 生產環境設為 production
+
+### Cloudflare 部署優化建議
+
+如需使用 Cloudflare 平台，建議以下優化方案：
+
+#### 方案1：檔案大小限制
+```javascript
+// 在 server.js 中加入檔案大小檢查
+const upload = multer({ 
+  storage: storage,
+  limits: {
+    fileSize: 4 * 1024 * 1024 // 4MB 限制（適合 Vercel）
+  }
+});
+```
+
+#### 方案2：分塊處理
+```javascript
+// 將大檔案分割為小塊處理
+const CHUNK_SIZE = 1024 * 1024; // 1MB chunks
+```
+
+#### 方案3：外部儲存
+```javascript
+// 使用 Cloudflare R2 或 AWS S3 儲存大檔案
+// 僅在 Cloudflare 處理轉換邏輯
+```
 
 ### Docker 部署（可選）
 ```dockerfile
