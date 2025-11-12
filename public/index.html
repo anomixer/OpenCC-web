@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>開放中文轉換 (Open Chinese Convert) - 不限制檔案長度</title>
+    <title>開放中文轉換 (Open Chinese Convert)</title>
     <link rel="icon" type="image/png" href="/favicon.png">
     <style>
         :root {
@@ -620,6 +620,7 @@
                 </button>
             </div>
             <h1>🌏 <span data-lang="title">開放中文轉換 (Open Chinese Convert)</span></h1>
+            <p id="platform-info" style="color: #6c757d; font-size: 0.9em; margin: 5px 0;"></p>
             <p><span data-lang="subtitle">不限制檔案長度 • 支援多種轉換模式 • 高效能處理</span></p>
         </header>
 
@@ -1285,7 +1286,7 @@
         const translations = {
             'zh-TW': {
                 'title': '開放中文轉換 (Open Chinese Convert)',
-                'subtitle': '不限制檔案長度 • 支援多種轉換模式 • 高效能處理',
+                'subtitle': '支援多種轉換模式 • 高效能處理',
                 'tab-text': '文字轉換',
                 'tab-file': '檔案轉換',
                 'config-label': '轉換設定：',
@@ -1327,7 +1328,7 @@
             },
             'zh-CN': {
                 'title': '开放中文转换 (Open Chinese Convert)',
-                'subtitle': '不限制文件长度 • 支持多种转换模式 • 高性能处理',
+                'subtitle': '支持多种转换模式 • 高性能处理',
                 'tab-text': '文字转换',
                 'tab-file': '文件转换',
                 'config-label': '转换设置：',
@@ -1530,12 +1531,21 @@
                     
                     // 顯示檔案大小限制
                     const limitElement = document.getElementById('file-size-limit');
+                    const platformElement = document.getElementById('platform-info');
                     if (limitElement && data.limits) {
                         const currentLang = localStorage.getItem('language') || 'zh-TW';
                         const limitText = currentLang === 'zh-CN' 
                             ? `文件大小限制: ${data.limits.maxFileSize}`
                             : `檔案大小限制: ${data.limits.maxFileSize}`;
                         limitElement.textContent = limitText;
+                        
+                        // 顯示平台資訊
+                        if (platformElement) {
+                            const platformText = currentLang === 'zh-CN'
+                                ? `🚀 部署平台: ${data.limits.platform}`
+                                : `🚀 部署平台: ${data.limits.platform}`;
+                            platformElement.textContent = platformText;
+                        }
                     }
                 })
                 .catch(error => {
