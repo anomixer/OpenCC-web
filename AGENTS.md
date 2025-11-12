@@ -1,51 +1,78 @@
-# OpenCC 開發指南
+# OpenCC Web 開發指南
 
-## 建置指令
+## 專案結構
 
-### CMake (主要)
-- `make` - 建置發行版本
-- `make test` - 建置並執行所有測試
-- `make benchmark` - 建置並執行效能測試
-- `make format` - 使用 clang-format 格式化程式碼
+### Git Submodule 架構
+- **主專案**: `OpenCC-web` - 網頁服務應用
+- **子模組**: `opencc/` - OpenCC 核心函式庫
+- **倉庫**: https://github.com/anomixer/OpenCC-web
 
-### Bazel
-- `bazel build //:opencc` - 建置函式庫
-- `bazel test --test_output=all //src/... //data/... //test/...` - 執行所有測試
-- `bazel test //test:target_name` - 執行單一測試
+### 開發環境設定
+```bash
+# 克隆專案（包含 submodule）
+git clone --recursive https://github.com/anomixer/OpenCC-web.git
+cd OpenCC-web
 
-### Windows
-- `build.cmd` - 使用 Visual Studio 建置
-- `test.cmd` - 在 Windows 上執行測試
+# 如果忘記使用 --recursive，可以：
+git submodule update --init --recursive
 
-## 程式碼風格
+# 更新 submodule 到最新版本
+git submodule update --remote
 
-### 格式化
-- 使用 LLVM 風格與左指標對齊
-- 執行 `make format` 套用 clang-format
-- 需要 C++14 標準
+# 安裝依賴
+npm install
 
-### 命名慣例
-- 類別: PascalCase (例如: `Conversion`, `DictGroup`)
-- 函式: 公開方法使用 PascalCase (例如: `Convert()`, `MatchPrefix()`)
-- 變數: 區域變數使用 camelCase
-- 常數: UPPER_SNAKE_CASE (例如: `OPENCC_DEFAULT_CONFIG_SIMP_TO_TRAD`)
-- 檔案: 類別檔案使用 PascalCase (例如: `Conversion.cpp`, `DictGroup.hpp`)
+# 啟動開發伺服器
+npm start
+```
 
-### 標頭檔與引入
-- 所有原始檔案包含 Apache 2.0 授權標頭
-- 使用 `#pragma once` 作為標頭檔保護
-- 引入順序: 系統標頭檔，然後是專案標頭檔
-- 在實作檔案中使用 `using namespace opencc;`
+### 專案目錄結構
+```
+OpenCC-web/
+├── opencc/              # OpenCC 核心函式庫 (git submodule)
+├── public/              # 靜態檔案
+│   ├── index.html       # 主頁面
+│   └── favicon.png      # 網站圖示
+├── uploads/             # 暫存檔案目錄（自動建立）
+├── server.js            # Express 伺服器主檔案
+├── package.json         # Node.js 依賴設定
+├── AGENTS.md           # 開發指南（本檔案）
+└── README.md           # 專案說明文檔
+```
 
-### 錯誤處理
-- 對可能失敗的操作使用 `Optional<T>`
-- 對嚴重錯誤拋出例外
-- 對預期失敗回傳 null/空值
+## 開發指令
 
-### 測試
-- 使用 Google Test 框架
-- 測試檔案以 `Test.cpp` 結尾
-- 將測試放在 `test/` 目錄中，與原始碼結構並列
+### Node.js 開發
+- `npm start` - 啟動開發伺服器（預設 port 3000）
+- `npm install` - 安裝依賴套件
+- `npm test` - 執行測試（目前為空）
+
+### Git 操作
+- `git status` - 檢查主專案狀態
+- `git submodule status` - 檢查 submodule 狀態
+- `git add . && git commit -m "message"` - 提交主專案變更
+- `git push` - 推送主專案到 GitHub
+
+### OpenCC 核心開發（進階）
+如需修改 OpenCC 核心函式庫：
+```bash
+# 進入 submodule 目錄
+cd opencc
+
+# 獨立操作 submodule
+git checkout master
+git pull origin master
+
+# 建置 OpenCC（參考 OpenCC 專案說明）
+# Windows: build.cmd
+# Linux/macOS: make
+
+# 回到主專案提交 submodule 更新
+cd ..
+git add opencc
+git commit -m "Update OpenCC submodule"
+git push
+```
 
 ## 網頁服務開發
 
@@ -67,8 +94,9 @@
 - 使用串流避免大型檔案的記憶體限制
 
 ### Web Service 功能
-- **位置**: `C:\dev\OpenCC-web\`
-- **網址**: http://localhost:3000
+- **專案**: OpenCC-web (https://github.com/anomixer/OpenCC-web)
+- **本地網址**: http://localhost:3000
+- **生產部署**: Railway/Render/Vercel
 - **標題**: 開放中文轉換 (Open Chinese Convert)
 - **核心功能**:
   - 文字轉換即時處理與複製按鈕
@@ -107,7 +135,55 @@
   - 改進分頁樣式與滑入動畫
   - 增強兩種主題的佔位符可見性
 
-### 開發歷史
+## 部署指南
+
+### 推薦部署平台
+
+#### Railway (推薦)
+```bash
+# 1. 連接 GitHub 帳號到 Railway
+# 2. 選擇 OpenCC-web repo
+# 3. Railway 自動偵測 Node.js 專案
+# 4. 設定環境變數（可選）
+# 5. 部署完成，取得 Railway URL
+```
+**優點**: 無檔案大小限制、支援 Node.js 完整功能、免費額度充足
+
+#### Render
+```bash
+# 1. 連接 GitHub 帳號到 Render
+# 2. 選擇 "New Web Service"
+# 3. 選擇 OpenCC-web repo
+# 4. 設定建置指令：npm install
+# 5. 設定啟動指令：npm start
+# 6. 部署完成
+```
+**優點**: 免費版支援完整功能、自動部署
+
+#### Vercel (需優化)
+```bash
+# 1. 安裝 Vercel CLI
+# 2. 執行 vercel --prod
+# 3. 按提示設定專案
+# 注意：Vercel 有檔案大小限制，需優化大檔案處理
+```
+
+### 環境變數設定
+- `PORT`: 服務端口（預設 3000）
+- `NODE_ENV`: 生產環境設為 production
+
+### Docker 部署（可選）
+```dockerfile
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+COPY . .
+EXPOSE 3000
+CMD ["npm", "start"]
+```
+
+## 開發歷史
 - 2025-11-12：分析專案結構的網頁服務部署選項
 - 識別 Node.js、Python 和 C++ API 作為網頁服務基礎
 - 設計無檔案大小限制的串流架構
@@ -139,3 +215,8 @@
 - 更新網站標題為「開放中文轉換 (Open Chinese Convert)」
 - 新增選擇新檔案時的自動進度重置
 - 改進下載功能以避免開啟新分頁
+- 2025-11-13：建立 GitHub 專案與 Git Submodule 架構
+- 設定 OpenCC 核心函式庫為 submodule
+- 上傳至 GitHub (https://github.com/anomixer/OpenCC-web)
+- 完成完整文檔與部署指南
+- 更新開發指南為現代化 Git Submodule 工作流程
