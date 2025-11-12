@@ -1529,15 +1529,21 @@
                 .then(data => {
                     console.log('可用的轉換設定:', data.configs);
                     
-                    // 顯示檔案大小限制
+                    // 顯示檔案大小限制和平台資訊（僅在有平台限制時）
                     const limitElement = document.getElementById('file-size-limit');
                     const platformElement = document.getElementById('platform-info');
-                    if (limitElement && data.limits) {
+                    
+                    if (data.limits && data.limits.platform && data.limits.platform !== 'Local/Unlimited') {
                         const currentLang = localStorage.getItem('language') || 'zh-TW';
-                        const limitText = currentLang === 'zh-CN' 
-                            ? `文件大小限制: ${data.limits.maxFileSize}`
-                            : `檔案大小限制: ${data.limits.maxFileSize}`;
-                        limitElement.textContent = limitText;
+                        
+                        // 顯示檔案限制
+                        if (limitElement) {
+                            const limitText = currentLang === 'zh-CN' 
+                                ? `文件大小限制: ${data.limits.maxFileSize}`
+                                : `檔案大小限制: ${data.limits.maxFileSize}`;
+                            limitElement.textContent = limitText;
+                            limitElement.style.display = 'block';
+                        }
                         
                         // 顯示平台資訊
                         if (platformElement) {
@@ -1545,7 +1551,12 @@
                                 ? `🚀 部署平台: ${data.limits.platform}`
                                 : `🚀 部署平台: ${data.limits.platform}`;
                             platformElement.textContent = platformText;
+                            platformElement.style.display = 'block';
                         }
+                    } else {
+                        // 本地開發環境，隱藏限制資訊
+                        if (limitElement) limitElement.style.display = 'none';
+                        if (platformElement) platformElement.style.display = 'none';
                     }
                 })
                 .catch(error => {
