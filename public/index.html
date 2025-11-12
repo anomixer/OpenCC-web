@@ -1,0 +1,1536 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>開放中文轉換 (Open Chinese Convert) - 不限制檔案長度</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <style>
+        :root {
+            /* Light Theme Colors */
+            --bg-gradient-start: #87CEEB;
+            --bg-gradient-mid: #98D8E8;
+            --bg-gradient-end: #B0E0E6;
+            --container-bg: white;
+            --container-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            --header-gradient-start: rgba(135, 206, 235, 0.9);
+            --header-gradient-end: rgba(176, 224, 230, 0.9);
+            --header-text: #212529;
+            --tabs-bg: #f8f9fa;
+            --tabs-border: #dee2e6;
+            --tab-text: #495057;
+            --tab-active-text: #007bff;
+            --tab-active-border: #007bff;
+            --content-bg: white;
+            --label-text: #495057;
+            --input-border: #e9ecef;
+            --input-focus-border: #007bff;
+            --input-bg: white;
+            --placeholder-color: #6c757d;
+            --btn-bg-start: #007bff;
+            --btn-bg-end: #0056b3;
+            --btn-text: white;
+            --btn-hover-shadow: 0 5px 15px rgba(0,123,255,0.3);
+            --result-bg: #f8f9fa;
+            --result-border: #007bff;
+            --result-text: #495057;
+            --result-content-bg: white;
+            --result-content-border: #dee2e6;
+            --progress-bg: #e9ecef;
+            --progress-fill: linear-gradient(90deg, #007bff, #0056b3);
+            --file-info-bg: #e3f2fd;
+            --file-info-border: #2196f3;
+            --error-bg: #f8d7da;
+            --error-text: #721c24;
+            --error-border: #dc3545;
+            --feature-bg: #f8f9fa;
+            --footer-bg: #343a40;
+            --footer-text: white;
+        }
+
+        [data-theme="dark"] {
+            /* Dark Theme Colors */
+            --bg-gradient-start: #0f0c29;
+            --bg-gradient-end: #302b63;
+            --bg-gradient-mid: #24243e;
+            --container-bg: #2d3748;
+            --container-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            --header-gradient-start: rgba(15, 12, 41, 0.8);
+            --header-gradient-end: rgba(48, 43, 99, 0.8);
+            --header-text: #e2e8f0;
+            --tabs-bg: #4a5568;
+            --tabs-border: #718096;
+            --tab-text: #e2e8f0;
+            --tab-active-text: #63b3ed;
+            --tab-active-border: #63b3ed;
+            --content-bg: #2d3748;
+            --label-text: #e2e8f0;
+            --input-border: #4a5568;
+            --input-focus-border: #63b3ed;
+            --input-bg: #4a5568;
+            --placeholder-color: #a0aec0;
+            --btn-bg-start: #3182ce;
+            --btn-bg-end: #2c5282;
+            --btn-text: white;
+            --btn-hover-shadow: 0 5px 15px rgba(49,130,206,0.3);
+            --result-bg: #4a5568;
+            --result-border: #63b3ed;
+            --result-text: #e2e8f0;
+            --result-content-bg: #2d3748;
+            --result-content-border: #718096;
+            --progress-bg: #4a5568;
+            --progress-fill: linear-gradient(90deg, #3182ce, #2c5282);
+            --file-info-bg: #2b6cb0;
+            --file-info-border: #3182ce;
+            --error-bg: #742a2a;
+            --error-text: #fed7d7;
+            --error-border: #e53e3e;
+            --feature-bg: #4a5568;
+            --footer-bg: #1a202c;
+            --footer-text: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-mid) 50%, var(--bg-gradient-end) 100%);
+            min-height: 100vh;
+            color: var(--label-text);
+            position: relative;
+        }
+
+        /* 晴空風格雲朵效果 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(ellipse 200px 80px at 20% 30%, rgba(255,255,255,0.8) 0%, transparent 50%),
+                radial-gradient(ellipse 150px 60px at 60% 20%, rgba(255,255,255,0.6) 0%, transparent 50%),
+                radial-gradient(ellipse 180px 70px at 80% 60%, rgba(255,255,255,0.7) 0%, transparent 50%),
+                radial-gradient(ellipse 120px 50px at 30% 70%, rgba(255,255,255,0.5) 0%, transparent 50%);
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+            opacity: 0.4;
+            animation: float 20s ease-in-out infinite alternate;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* 暗夜風格星星效果 */
+        [data-theme="dark"] body::before {
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, white, transparent),
+                radial-gradient(2px 2px at 40px 70px, white, transparent),
+                radial-gradient(1px 1px at 50px 50px, white, transparent),
+                radial-gradient(1px 1px at 80px 10px, white, transparent),
+                radial-gradient(2px 2px at 130px 80px, white, transparent),
+                radial-gradient(1px 1px at 110px 120px, white, transparent);
+            background-repeat: repeat;
+            background-size: 200px 200px;
+            opacity: 0.3;
+            animation: twinkle 5s ease-in-out infinite alternate;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px) translateX(0px); }
+            25% { transform: translateY(-10px) translateX(5px); }
+            50% { transform: translateY(5px) translateX(-5px); }
+            75% { transform: translateY(-5px) translateX(10px); }
+            100% { transform: translateY(0px) translateX(0px); }
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0.3; }
+            50% { opacity: 0.5; }
+            100% { opacity: 0.3; }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: var(--container-bg);
+            border-radius: 15px;
+            box-shadow: var(--container-shadow);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--header-gradient-start) 0%, var(--header-gradient-end) 100%);
+            color: var(--header-text);
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        /* Theme and Language Toggle Buttons */
+        .header-buttons {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .theme-toggle, .lang-toggle {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(0, 0, 0, 0.2);
+            border-radius: 50px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            color: white;
+        }
+
+        .theme-toggle:hover, .lang-toggle:hover {
+            background: rgba(0, 0, 0, 0.5);
+            transform: scale(1.05);
+        }
+
+        .theme-toggle:active, .lang-toggle:active {
+            transform: scale(0.95);
+        }
+
+        [data-theme="dark"] .theme-toggle, [data-theme="dark"] .lang-toggle {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+        [data-theme="dark"] .theme-toggle:hover, [data-theme="dark"] .lang-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .tabs {
+            display: flex;
+            background: var(--tabs-bg);
+            border-bottom: 1px solid var(--tabs-border);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            background: none;
+            font-size: 1.1em;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .tab:hover {
+            background: var(--input-bg);
+        }
+
+        .tab.active {
+            background: var(--content-bg);
+            color: var(--tab-active-text);
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--tab-active-border);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: scaleX(0);
+            }
+            to {
+                transform: scaleX(1);
+            }
+        }
+
+        .content {
+            padding: 40px;
+            background: var(--content-bg);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--label-text);
+        }
+
+        select, textarea, input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--input-border);
+            border-radius: 8px;
+            font-size: 1em;
+            background: var(--input-bg);
+            color: var(--label-text);
+            transition: border-color 0.3s ease;
+        }
+
+        /* Placeholder 顏色 */
+        select::placeholder, textarea::placeholder {
+            color: var(--placeholder-color, #a0aec0);
+        }
+
+        /* 深色模式下的 placeholder 顏色 */
+        [data-theme="dark"] select::placeholder,
+        [data-theme="dark"] textarea::placeholder {
+            color: var(--placeholder-color, #a0aec0);
+        }
+
+        select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--input-focus-border);
+        }
+
+        textarea {
+            min-height: 200px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--btn-bg-start) 0%, var(--btn-bg-end) 100%);
+            color: var(--btn-text);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--btn-hover-shadow);
+        }
+
+        .btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 25px;
+            background: var(--result-bg);
+            border-radius: 8px;
+            border-left: 4px solid var(--result-border);
+        }
+
+        .result h3 {
+            margin-bottom: 15px;
+            color: var(--result-text);
+        }
+
+        .result-text {
+            background: var(--result-content-bg);
+            padding: 20px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid var(--result-content-border);
+            color: var(--result-text);
+        }
+
+        .progress {
+            display: none;
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: var(--progress-bg);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--progress-fill);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .file-info {
+            background: var(--file-info-bg);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid var(--file-info-border);
+            color: var(--header-text);
+        }
+
+        .drop-zone {
+            border: 2px dashed var(--input-border);
+            border-radius: 8px;
+            padding: 40px 20px;
+            text-align: center;
+            margin: 20px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--content-bg);
+        }
+
+        .drop-zone:hover {
+            border-color: var(--input-focus-border);
+            background: var(--tabs-bg);
+        }
+
+        .drop-zone.dragover {
+            border-color: var(--input-focus-border);
+            background: var(--tabs-bg);
+            transform: scale(1.02);
+        }
+
+        .drop-zone-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            opacity: 0.6;
+        }
+
+        .drop-zone-content p {
+            margin: 10px 0;
+            color: var(--label-text);
+        }
+
+        .drop-zone-hint {
+            font-size: 0.9em;
+            opacity: 0.7;
+        }
+
+        .file-list {
+            margin: 20px 0;
+        }
+
+        .file-item {
+            background: var(--content-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .file-item:hover {
+            border-color: var(--input-focus-border);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .file-item-info {
+            flex: 1;
+        }
+
+        .file-item-name {
+            font-weight: bold;
+            color: var(--label-text);
+            margin-bottom: 5px;
+        }
+
+        .file-item-details {
+            font-size: 0.9em;
+            color: var(--label-text);
+            opacity: 0.7;
+        }
+
+        .file-item-status {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .file-item-status.pending {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .file-item-status.processing {
+            background: #007bff;
+            color: white;
+        }
+
+        .file-item-status.completed {
+            background: #28a745;
+            color: white;
+        }
+
+        .file-item-status.error {
+            background: #dc3545;
+            color: white;
+        }
+
+        .file-item-actions {
+            margin-left: 15px;
+        }
+
+        .file-item-actions button {
+            padding: 5px 10px;
+            font-size: 0.9em;
+            margin: 0 2px;
+        }
+
+        .batch-progress {
+            margin: 20px 0;
+            padding: 15px;
+            background: var(--tabs-bg);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            margin-top: 15px;
+        }
+
+        .error {
+            background: var(--error-bg);
+            color: var(--error-text);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--error-border);
+            margin: 15px 0;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .feature {
+            background: var(--feature-bg);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            color: var(--label-text);
+        }
+
+        .feature-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        footer {
+            background: var(--footer-bg);
+            color: var(--footer-text);
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+        }
+
+        .github-link {
+            color: var(--footer-text);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .github-link:hover {
+            color: #63b3ed;
+        }
+
+        .github-icon {
+            margin-right: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+            
+            header h1 {
+                font-size: 2em;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-buttons">
+                <button class="lang-toggle" onclick="toggleLanguage()" title="切换语言/切換語言">
+                    <span id="lang-text">简</span>
+                </button>
+                <button class="theme-toggle" onclick="toggleTheme()" title="切換主題">
+                    <span id="theme-icon">☀️</span>
+                </button>
+            </div>
+            <h1>🌏 <span data-lang="title">開放中文轉換 (Open Chinese Convert)</span></h1>
+            <p><span data-lang="subtitle">不限制檔案長度 • 支援多種轉換模式 • 高效能處理</span></p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('text')">
+                <span data-lang="tab-text">文字轉換</span>
+            </button>
+            <button class="tab" onclick="switchTab('file')">
+                <span data-lang="tab-file">檔案轉換</span>
+            </button>
+        </div>
+
+        <div class="content">
+            <!-- 文字轉換分頁 -->
+            <div id="text-tab" class="tab-content active">
+                <div class="form-group">
+                    <label for="text-config"><span data-lang="config-label">轉換設定：</span></label>
+                    <select id="text-config">
+                        <option value="s2t" data-lang-option="s2t">簡體中文 → 繁體中文</option>
+                        <option value="t2s" data-lang-option="t2s">繁體中文 → 簡體中文</option>
+                        <option value="s2hk" data-lang-option="s2hk">簡體中文 → 香港繁體</option>
+                        <option value="hk2s" data-lang-option="hk2s">香港繁體 → 簡體中文</option>
+                        <option value="s2tw" data-lang-option="s2tw">簡體中文 → 臺灣正體</option>
+                        <option value="tw2s" data-lang-option="tw2s">臺灣正體 → 簡體中文</option>
+                        <option value="s2twp" data-lang-option="s2twp">簡體中文 → 繁體（臺灣用詞）</option>
+                        <option value="tw2sp" data-lang-option="tw2sp">繁體（臺灣） → 簡體（大陸用詞）</option>
+                        <option value="t2tw" data-lang-option="t2tw">繁體（OpenCC） → 臺灣正體</option>
+                        <option value="tw2t" data-lang-option="tw2t">臺灣正體 → 繁體（OpenCC）</option>
+                        <option value="hk2t" data-lang-option="hk2t">香港繁體 → 繁體（OpenCC）</option>
+                        <option value="t2hk" data-lang-option="t2hk">繁體（OpenCC） → 香港繁體</option>
+                        <option value="t2jp" data-lang-option="t2jp">繁體（舊字體） → 日文新字體</option>
+                        <option value="jp2t" data-lang-option="jp2t">日文新字體 → 繁體（舊字體）</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="input-text"><span data-lang="input-label">輸入文字：</span></label>
+                    <textarea id="input-text" data-lang-placeholder="input-placeholder" placeholder="請輸入要轉換的中文文字..."></textarea>
+                </div>
+
+                <button class="btn" onclick="convertText()" data-lang="btn-convert">轉換文字</button>
+                <button class="btn" onclick="clearText()" data-lang="btn-clear">清空</button>
+
+                <div id="text-result" class="result" style="display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h3 data-lang="result-title" style="margin: 0;">轉換結果：</h3>
+                        <button class="btn" onclick="copyResult()" style="padding: 8px 16px; font-size: 0.9em;">
+                            📋 複製
+                        </button>
+                    </div>
+                    <div class="result-text" id="converted-text"></div>
+                </div>
+            </div>
+
+            <!-- 檔案轉換分頁 -->
+            <div id="file-tab" class="tab-content">
+                <div class="form-group">
+                    <label for="file-config"><span data-lang="config-label">轉換設定：</span></label>
+                    <select id="file-config">
+                        <option value="s2t" data-lang-option="s2t">簡體中文 → 繁體中文</option>
+                        <option value="t2s" data-lang-option="t2s">繁體中文 → 簡體中文</option>
+                        <option value="s2hk" data-lang-option="s2hk">簡體中文 → 香港繁體</option>
+                        <option value="hk2s" data-lang-option="hk2s">香港繁體 → 簡體中文</option>
+                        <option value="s2tw" data-lang-option="s2tw">簡體中文 → 臺灣正體</option>
+                        <option value="tw2s" data-lang-option="tw2s">臺灣正體 → 簡體中文</option>
+                        <option value="s2twp" data-lang-option="s2twp">簡體中文 → 繁體（臺灣用詞）</option>
+                        <option value="tw2sp" data-lang-option="tw2sp">繁體（臺灣） → 簡體（大陸用詞）</option>
+                        <option value="t2tw" data-lang-option="t2tw">繁體（OpenCC） → 臺灣正體</option>
+                        <option value="tw2t" data-lang-option="tw2t">臺灣正體 → 繁體（OpenCC）</option>
+                        <option value="hk2t" data-lang-option="hk2t">香港繁體 → 繁體（OpenCC）</option>
+                        <option value="t2hk" data-lang-option="t2hk">繁體（OpenCC） → 香港繁體</option>
+                        <option value="t2jp" data-lang-option="t2jp">繁體（舊字體） → 日文新字體</option>
+                        <option value="jp2t" data-lang-option="jp2t">日文新字體 → 繁體（舊字體）</option>
+                    </select>
+                </div>
+
+                <input type="file" id="file-input" multiple style="display: none;" onchange="showFileInfo()">
+
+                <!-- 拖放上傳區域 -->
+                <div id="drop-zone" class="drop-zone">
+                    <div class="drop-zone-content">
+                        <div class="drop-zone-icon">📁</div>
+                        <p><span data-lang="drop-zone-text">拖放檔案到這裡，或點擊選擇檔案</span></p>
+                        <p class="drop-zone-hint"><span data-lang="drop-zone-hint">支援所有文字類的檔案格式，可同時處理多個檔案</span></p>
+                    </div>
+                </div>
+
+                <div id="file-list" class="file-list" style="display: none;"></div>
+
+                <button class="btn" id="convert-file-btn" onclick="convertFile()" disabled data-lang="btn-convert-file">轉換檔案</button>
+
+                <div id="file-progress" class="progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                    <p id="progress-text" data-lang="progress-text">轉換中...</p>
+                </div>
+
+
+            </div>
+
+            <!-- 功能特色 -->
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">🚀</div>
+                    <h3 data-lang="feature-performance">高效能</h3>
+                    <p data-lang="feature-performance-desc">使用 OpenCC 核心引擎，轉換速度快</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">📄</div>
+                    <h3 data-lang="feature-unlimited">不限制長度</h3>
+                    <p data-lang="feature-unlimited-desc">支援任意大小的檔案轉換</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🔄</div>
+                    <h3 data-lang="feature-modes">多種模式</h3>
+                    <p data-lang="feature-modes-desc">支援 14 種轉換設定</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🛡️</div>
+                    <h3 data-lang="feature-security">安全隱私</h3>
+                    <p data-lang="feature-security-desc">檔案自動清理，保護隱私</p>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>
+                <span data-lang="footer-text">基於</span>
+                <a href="https://github.com/anomixer/OpenCC" target="_blank" class="github-link">
+                    <span class="github-icon">🔗</span>OpenCC 專案
+                </a>
+                <span data-lang="footer-text2">建構 | 支援不限制檔案長度的中文轉換服務</span>
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        let currentFile = null;
+        let convertedFilename = null;
+        let selectedFiles = [];
+        let fileProcessingQueue = [];
+        let isProcessingBatch = false;
+
+        // 切換分頁
+        function switchTab(tabName) {
+            // 移除所有 active 類別
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            // 添加 active 類別到選中的分頁
+            event.target.classList.add('active');
+            document.getElementById(tabName + '-tab').classList.add('active');
+        }
+
+        // 文字轉換
+        async function convertText() {
+            const text = document.getElementById('input-text').value.trim();
+            const config = document.getElementById('text-config').value;
+            
+            if (!text) {
+                alert('請輸入要轉換的文字');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/convert/text', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text, config })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('converted-text').textContent = result.converted;
+                    document.getElementById('text-result').style.display = 'block';
+                } else {
+                    throw new Error(result.error || '轉換失敗');
+                }
+            } catch (error) {
+                showError('文字轉換失敗：' + error.message);
+            }
+        }
+
+        // 清空文字
+        function clearText() {
+            document.getElementById('input-text').value = '';
+            document.getElementById('text-result').style.display = 'none';
+        }
+
+        // 複製轉換結果
+        async function copyResult() {
+            const resultText = document.getElementById('converted-text').textContent;
+            
+            if (!resultText) {
+                showError('沒有可複製的內容');
+                return;
+            }
+
+            try {
+                // 使用現代的 Clipboard API
+                await navigator.clipboard.writeText(resultText);
+                
+                // 顯示複製成功的提示
+                showCopySuccess();
+            } catch (err) {
+                // 如果 Clipboard API 不可用，使用傳統方法
+                fallbackCopyTextToClipboard(resultText);
+                showCopySuccess();
+            }
+        }
+
+        // 備用複製方法
+        function fallbackCopyTextToClipboard(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+            } catch (err) {
+                console.error('複製失敗:', err);
+                showError('複製失敗，請手動選擇文字複製');
+            }
+            
+            document.body.removeChild(textArea);
+        }
+
+        // 顯示複製成功提示
+        function showCopySuccess() {
+            const resultDiv = document.getElementById('text-result');
+            const successMsg = document.createElement('div');
+            successMsg.textContent = '✅ 已複製到剪貼簿';
+            successMsg.style.cssText = `
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                background: #28a745;
+                color: white;
+                padding: 8px 12px;
+                border-radius: 4px;
+                font-size: 0.9em;
+                z-index: 1000;
+                animation: fadeInOut 2s ease-in-out;
+            `;
+            
+            // 添加淡入淡出動畫
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fadeInOut {
+                    0% { opacity: 0; transform: translateY(-10px); }
+                    20% { opacity: 1; transform: translateY(0); }
+                    80% { opacity: 1; transform: translateY(0); }
+                    100% { opacity: 0; transform: translateY(-10px); }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            resultDiv.style.position = 'relative';
+            resultDiv.appendChild(successMsg);
+            
+            // 2秒後移除提示
+            setTimeout(() => {
+                if (successMsg.parentNode) {
+                    successMsg.parentNode.removeChild(successMsg);
+                }
+            }, 2000);
+        }
+
+        // 顯示檔案資訊
+        function showFileInfo() {
+            const fileInput = document.getElementById('file-input');
+            const files = Array.from(fileInput.files);
+            
+            if (files.length > 0) {
+                handleFiles(files);
+            } else {
+                selectedFiles = [];
+                displayFileList();
+                document.getElementById('convert-file-btn').disabled = true;
+            }
+        }
+
+        // 拖放功能
+        function setupDragAndDrop() {
+            const dropZone = document.getElementById('drop-zone');
+            const fileInput = document.getElementById('file-input');
+
+            if (!dropZone || !fileInput) {
+                console.error('拖放元素未找到');
+                return;
+            }
+
+            console.log('拖放功能初始化成功');
+
+            // 點擊拖放區域觸發檔案選擇
+            dropZone.addEventListener('click', () => {
+                console.log('拖放區域被點擊');
+                fileInput.click();
+            });
+
+            // 拖放事件
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                console.log('檔案拖放到區域上方');
+                dropZone.classList.add('dragover');
+            });
+
+            dropZone.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                console.log('檔案離開拖放區域');
+                dropZone.classList.remove('dragover');
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                console.log('檔案被拖放');
+                dropZone.classList.remove('dragover');
+                
+                const files = Array.from(e.dataTransfer.files);
+                console.log('拖放的檔案:', files);
+                handleFiles(files);
+            });
+        }
+
+        // 處理檔案選擇
+        function handleFiles(files) {
+            console.log('處理檔案:', files);
+            
+            if (files.length === 0) {
+                showError('請選擇要轉換的檔案');
+                return;
+            }
+
+            // 重置進度條
+            resetProgress();
+            
+            selectedFiles = Array.from(files);
+            console.log('選中的檔案:', selectedFiles);
+            displayFileList();
+        }
+
+        // 重置進度條
+        function resetProgress() {
+            const progressDiv = document.getElementById('file-progress');
+            const progressFill = document.getElementById('progress-fill');
+            const progressText = document.getElementById('progress-text');
+            
+            progressDiv.style.display = 'none';
+            progressFill.style.width = '0%';
+            progressText.textContent = '轉換中...';
+        }
+
+        // 顯示檔案列表
+        function displayFileList() {
+            const fileList = document.getElementById('file-list');
+            const convertBtn = document.getElementById('convert-file-btn');
+            
+            if (selectedFiles.length === 0) {
+                fileList.style.display = 'none';
+                convertBtn.disabled = true;
+                return;
+            }
+
+            fileList.style.display = 'block';
+            convertBtn.disabled = false;
+            console.log('轉換按鈕已啟用，selectedFiles.length:', selectedFiles.length);
+
+            let html = '';
+            selectedFiles.forEach((file, index) => {
+                const fileSize = (file.size / 1024).toFixed(2) + ' KB';
+                const status = file.status || 'pending';
+                
+                html += `
+                    <div class="file-item" id="file-item-${index}">
+                        <div class="file-item-info">
+                            <div class="file-item-name">${file.name}</div>
+                            <div class="file-item-details">${fileSize}</div>
+                        </div>
+                        <div class="file-item-status ${status}" id="file-status-${index}">
+                            ${getStatusText(status)}
+                        </div>
+                        <div class="file-item-actions" id="file-actions-${index}" style="display: none;">
+                            <button class="btn download-btn" onclick="downloadConvertedFile(${index})">
+                                下載
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            fileList.innerHTML = html;
+        }
+
+        // 獲取狀態文字
+        function getStatusText(status) {
+            const statusTexts = {
+                'pending': '等待中',
+                'processing': '處理中',
+                'completed': '完成',
+                'error': '錯誤'
+            };
+            return statusTexts[status] || status;
+        }
+
+        // 更新檔案狀態
+        function updateFileStatus(index, status, convertedFilename = null) {
+            const statusElement = document.getElementById(`file-status-${index}`);
+            const actionsElement = document.getElementById(`file-actions-${index}`);
+            
+            if (statusElement) {
+                statusElement.className = `file-item-status ${status}`;
+                statusElement.textContent = getStatusText(status);
+            }
+            
+            if (actionsElement && status === 'completed' && convertedFilename) {
+                actionsElement.style.display = 'block';
+                selectedFiles[index].convertedFilename = convertedFilename;
+            }
+        }
+
+        // 下載轉換後的檔案
+        function downloadConvertedFile(index) {
+            const file = selectedFiles[index];
+            if (file && file.convertedFilename) {
+                // 創建一個隱藏的連結並觸發下載，不開新分頁
+                const link = document.createElement('a');
+                link.href = `/api/download/${file.convertedFilename}`;
+                link.download = ''; // 讓瀏覽器使用伺服器提供的檔名
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                // 標記為已下載並更新按鈕
+                file.downloaded = true;
+                updateDownloadButton(index, true);
+            }
+        }
+
+        // 更新下載按鈕狀態
+        function updateDownloadButton(index, downloaded) {
+            const actionsElement = document.getElementById(`file-actions-${index}`);
+            if (actionsElement) {
+                if (downloaded) {
+                    actionsElement.innerHTML = `
+                        <button class="btn" style="background: #6c757d;" onclick="downloadConvertedFile(${index})">
+                            已下載
+                        </button>
+                    `;
+                }
+            }
+        }
+
+        // 批次處理檔案
+        async function processBatchFiles() {
+            if (selectedFiles.length === 0) return;
+
+            isProcessingBatch = true;
+            const config = document.getElementById('file-config').value;
+            const convertBtn = document.getElementById('convert-file-btn');
+            const progressDiv = document.getElementById('file-progress');
+            const progressFill = document.getElementById('progress-fill');
+            const progressText = document.getElementById('progress-text');
+
+            convertBtn.disabled = true;
+            progressDiv.style.display = 'block';
+
+            for (let i = 0; i < selectedFiles.length; i++) {
+                const file = selectedFiles[i];
+                
+                try {
+                    updateFileStatus(i, 'processing');
+                    
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    formData.append('config', config);
+
+                    const response = await fetch('/api/convert/file', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('檔案上傳失敗');
+                    }
+
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder();
+                    let convertedFilename = null;
+
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+
+                        const chunk = decoder.decode(value);
+                        const lines = chunk.split('\n').filter(line => line.startsWith('data: '));
+                        
+                        for (const line of lines) {
+                            try {
+                                const data = JSON.parse(line.substring(6));
+                                
+                                if (data.type === 'progress') {
+                                    const overallProgress = ((i + data.progress / 100) / selectedFiles.length) * 100;
+                                    progressFill.style.width = overallProgress + '%';
+                                    progressText.textContent = `處理檔案 ${i + 1}/${selectedFiles.length} - ${data.progress}%`;
+                                } else if (data.type === 'complete') {
+                                    convertedFilename = data.filename;
+                                } else if (data.type === 'error') {
+                                    throw new Error(data.message);
+                                }
+                            } catch (e) {
+                                console.error('解析 SSE 數據錯誤:', e);
+                            }
+                        }
+                    }
+
+                    if (convertedFilename) {
+                        updateFileStatus(i, 'completed', convertedFilename);
+                    } else {
+                        throw new Error('轉換失敗');
+                    }
+
+                } catch (error) {
+                    console.error('檔案轉換錯誤:', error);
+                    updateFileStatus(i, 'error');
+                }
+            }
+
+            // 確保進度條達到100%
+            progressFill.style.width = '100%';
+            progressText.textContent = '批次轉換完成！';
+            convertBtn.disabled = false;
+            isProcessingBatch = false;
+        }
+
+        // 檔案轉換
+        async function convertFile() {
+            console.log('convertFile 被調用');
+            console.log('selectedFiles:', selectedFiles);
+            
+            if (selectedFiles.length === 0) {
+                showError('請選擇要轉換的檔案');
+                return;
+            }
+
+            if (selectedFiles.length === 1) {
+                console.log('執行單檔案轉換');
+                // 單檔案轉換（保持原有邏輯）
+                await convertSingleFile();
+            } else {
+                console.log('執行多檔案批次轉換');
+                // 多檔案批次轉換
+                await processBatchFiles();
+            }
+        }
+
+        // 單檔案轉換
+        async function convertSingleFile() {
+            const file = selectedFiles[0];
+            const config = document.getElementById('file-config').value;
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('config', config);
+
+            const progressDiv = document.getElementById('file-progress');
+            const progressFill = document.getElementById('progress-fill');
+            const progressText = document.getElementById('progress-text');
+            const convertBtn = document.getElementById('convert-file-btn');
+
+            try {
+                // 更新檔案狀態為處理中
+                updateFileStatus(0, 'processing');
+                
+                progressDiv.style.display = 'block';
+                convertBtn.disabled = true;
+                convertBtn.textContent = '轉換中...';
+
+                const response = await fetch('/api/convert/file', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('檔案上傳失敗');
+                }
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let convertedFilename = null;
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split('\n').filter(line => line.startsWith('data: '));
+                    
+                    for (const line of lines) {
+                        try {
+                            const data = JSON.parse(line.substring(6));
+                            
+                            if (data.type === 'progress') {
+                                progressFill.style.width = data.progress + '%';
+                                progressText.textContent = `轉換中... ${data.progress}%`;
+                            } else if (data.type === 'complete') {
+                                convertedFilename = data.filename;
+                            } else if (data.type === 'error') {
+                                throw new Error(data.error);
+                            }
+                        } catch (e) {
+                            console.error('解析資料錯誤:', e);
+                        }
+                    }
+                }
+
+                if (convertedFilename) {
+                    // 更新檔案狀態為完成並顯示下載按鈕
+                    updateFileStatus(0, 'completed', convertedFilename);
+                    selectedFiles[0].convertedFilename = convertedFilename;
+                } else {
+                    throw new Error('轉換失敗');
+                }
+
+            } catch (error) {
+                updateFileStatus(0, 'error');
+                progressDiv.style.display = 'none';
+                convertBtn.textContent = '轉換檔案';
+                convertBtn.disabled = false;
+                showError('檔案轉換失敗：' + error.message);
+            } finally {
+                progressDiv.style.display = 'none';
+                convertBtn.textContent = '轉換檔案';
+                convertBtn.disabled = false;
+            }
+        }
+
+
+
+        // 顯示錯誤訊息
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.textContent = message;
+            
+            const content = document.querySelector('.content');
+            content.insertBefore(errorDiv, content.firstChild);
+            
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 5000);
+        }
+
+        // 語言資料
+        const translations = {
+            'zh-TW': {
+                'title': '開放中文轉換 (Open Chinese Convert)',
+                'subtitle': '不限制檔案長度 • 支援多種轉換模式 • 高效能處理',
+                'tab-text': '文字轉換',
+                'tab-file': '檔案轉換',
+                'config-label': '轉換設定：',
+                'input-label': '輸入文字：',
+                'input-placeholder': '請輸入要轉換的中文文字...',
+                'btn-convert': '轉換文字',
+                'btn-clear': '清空',
+                'result-title': '轉換結果：',
+                'file-label': '選擇檔案：',
+                'btn-convert-file': '轉換檔案',
+                'drop-zone-text': '拖放檔案到這裡，或點擊選擇檔案',
+                'drop-zone-hint': '支援所有文字類的檔案格式，可同時處理多個檔案',
+                'progress-text': '轉換中...',
+                'convert-complete': '轉換完成！',
+                'btn-download': '下載轉換後的檔案',
+                'feature-performance': '高效能',
+                'feature-performance-desc': '使用 OpenCC 核心引擎，轉換速度快',
+                'feature-unlimited': '不限制長度',
+                'feature-unlimited-desc': '支援任意大小的檔案轉換',
+                'feature-modes': '多種模式',
+                'feature-modes-desc': '支援 14 種轉換設定',
+                'feature-security': '安全隱私',
+                'feature-security-desc': '檔案自動清理，保護隱私',
+                'footer-text': '基於',
+                'footer-text2': '建構 | 支援不限制檔案長度的中文轉換服務',
+                'file-name': '檔案名稱：',
+                'file-size': '檔案大小：',
+                'file-type': '檔案類型：',
+                'unknown': '未知',
+                'converting': '轉換中...',
+                'convert-error': '檔案轉換失敗：',
+                'select-file': '請選擇要轉換的檔案',
+                'enter-text': '請輸入要轉換的文字',
+                'unsupported-config': '不支援的轉換設定',
+                'conversion-failed': '轉換失敗：',
+                'file-upload-failed': '檔案上傳失敗',
+                'download-failed': '下載失敗',
+                'file-not-found': '檔案不存在'
+            },
+            'zh-CN': {
+                'title': '开放中文转换 (Open Chinese Convert)',
+                'subtitle': '不限制文件长度 • 支持多种转换模式 • 高性能处理',
+                'tab-text': '文字转换',
+                'tab-file': '文件转换',
+                'config-label': '转换设置：',
+                'input-label': '输入文字：',
+                'input-placeholder': '请输入要转换的中文文字...',
+                'btn-convert': '转换文字',
+                'btn-clear': '清空',
+                'result-title': '转换结果：',
+                'file-label': '选择文件：',
+                'btn-convert-file': '转换文件',
+                'drop-zone-text': '拖放文件到这里，或点击选择文件',
+                'drop-zone-hint': '支持所有文字类的文件格式，可同时处理多个文件',
+                'progress-text': '转换中...',
+                'convert-complete': '转换完成！',
+                'btn-download': '下载转换后的文件',
+                'feature-performance': '高性能',
+                'feature-performance-desc': '使用 OpenCC 核心引擎，转换速度快',
+                'feature-unlimited': '不限制长度',
+                'feature-unlimited-desc': '支持任意大小的文件转换',
+                'feature-modes': '多种模式',
+                'feature-modes-desc': '支持 14 种转换设置',
+                'feature-security': '安全隐私',
+                'feature-security-desc': '文件自动清理，保护隐私',
+                'footer-text': '基于',
+                'footer-text2': '构建 | 支持不限制文件长度的中文转换服务',
+                'file-name': '文件名称：',
+                'file-size': '文件大小：',
+                'file-type': '文件类型：',
+                'unknown': '未知',
+                'converting': '转换中...',
+                'convert-error': '文件转换失败：',
+                'select-file': '请选择要转换的文件',
+                'enter-text': '请输入要转换的文字',
+                'unsupported-config': '不支持的转换设置',
+                'conversion-failed': '转换失败：',
+                'file-upload-failed': '文件上传失败',
+                'download-failed': '下载失败',
+                'file-not-found': '文件不存在'
+            }
+        };
+
+        // 转换选项翻译
+        const optionTranslations = {
+            'zh-TW': {
+                's2t': '簡體中文 → 繁體中文',
+                't2s': '繁體中文 → 簡體中文',
+                's2hk': '簡體中文 → 香港繁體',
+                'hk2s': '香港繁體 → 簡體中文',
+                's2tw': '簡體中文 → 臺灣正體',
+                'tw2s': '臺灣正體 → 簡體中文',
+                's2twp': '簡體中文 → 繁體（臺灣用詞）',
+                'tw2sp': '繁體（臺灣） → 簡體（大陸用詞）',
+                't2tw': '繁體（OpenCC） → 臺灣正體',
+                'tw2t': '臺灣正體 → 繁體（OpenCC）',
+                'hk2t': '香港繁體 → 繁體（OpenCC）',
+                't2hk': '繁體（OpenCC） → 香港繁體',
+                't2jp': '繁體（舊字體） → 日文新字體',
+                'jp2t': '日文新字體 → 繁體（舊字體）'
+            },
+            'zh-CN': {
+                's2t': '简体中文 → 繁体中文',
+                't2s': '繁体中文 → 简体中文',
+                's2hk': '简体中文 → 香港繁体',
+                'hk2s': '香港繁体 → 简体中文',
+                's2tw': '简体中文 → 台湾正体',
+                'tw2s': '台湾正体 → 简体中文',
+                's2twp': '简体中文 → 繁体（台湾用词）',
+                'tw2sp': '繁体（台湾） → 简体（大陆用词）',
+                't2tw': '繁体（OpenCC） → 台湾正体',
+                'tw2t': '台湾正体 → 繁体（OpenCC）',
+                'hk2t': '香港繁体 → 繁体（OpenCC）',
+                't2hk': '繁体（OpenCC） → 香港繁体',
+                't2jp': '繁体（旧字体） → 日文新字体',
+                'jp2t': '日文新字体 → 繁体（旧字体）'
+            }
+        };
+
+        // 語言切換功能
+        function toggleLanguage() {
+            const currentLang = localStorage.getItem('language') || 'zh-TW';
+            const newLang = currentLang === 'zh-TW' ? 'zh-CN' : 'zh-TW';
+            const langText = document.getElementById('lang-text');
+            
+            localStorage.setItem('language', newLang);
+            langText.textContent = newLang === 'zh-TW' ? '繁' : '简';
+            
+            updateLanguage(newLang);
+        }
+
+        // 更新語言
+        function updateLanguage(lang) {
+            const elements = document.querySelectorAll('[data-lang]');
+            elements.forEach(element => {
+                const key = element.getAttribute('data-lang');
+                if (translations[lang] && translations[lang][key]) {
+                    element.textContent = translations[lang][key];
+                }
+            });
+
+            // 更新 placeholder
+            const placeholderElements = document.querySelectorAll('[data-lang-placeholder]');
+            placeholderElements.forEach(element => {
+                const key = element.getAttribute('data-lang-placeholder');
+                if (translations[lang] && translations[lang][key]) {
+                    element.placeholder = translations[lang][key];
+                }
+            });
+
+            // 更新選項文字
+            const optionElements = document.querySelectorAll('[data-lang-option]');
+            optionElements.forEach(element => {
+                const value = element.getAttribute('data-lang-option');
+                if (optionTranslations[lang] && optionTranslations[lang][value]) {
+                    element.textContent = optionTranslations[lang][value];
+                }
+            });
+        }
+
+        // 主題切換功能
+        function toggleTheme() {
+            const html = document.documentElement;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = html.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                html.removeAttribute('data-theme');
+                themeIcon.textContent = '☀️';  // Light mode 顯示太陽
+                localStorage.setItem('theme', 'light');
+            } else {
+                html.setAttribute('data-theme', 'dark');
+                themeIcon.textContent = '🌙';  // Dark mode 顯示月亮
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // 初始化主題
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const themeIcon = document.getElementById('theme-icon');
+            
+            if (savedTheme) {
+                // 使用用戶之前保存的主題設定
+                if (savedTheme === 'dark') {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    themeIcon.textContent = '🌙';  // Dark mode 顯示月亮
+                } else {
+                    themeIcon.textContent = '☀️';  // Light mode 顯示太陽
+                }
+            } else {
+                // 沒有保存的設定時，使用瀏覽器系統主題
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    themeIcon.textContent = '🌙';  // Dark mode 顯示月亮
+                } else {
+                    themeIcon.textContent = '☀️';  // Light mode 顯示太陽
+                }
+            }
+        }
+
+        // 初始化語言
+        function initLanguage() {
+            let savedLang = localStorage.getItem('language');
+            
+            if (!savedLang) {
+                // 沒有保存的語言設定時，參考瀏覽器語言
+                const browserLang = navigator.language || navigator.userLanguage;
+                
+                if (browserLang.startsWith('zh-CN') || browserLang.startsWith('zh-SG') || browserLang.startsWith('zh-MY')) {
+                    savedLang = 'zh-CN';  // 簡體中文地區
+                } else if (browserLang.startsWith('zh-TW') || browserLang.startsWith('zh-HK') || 
+                          browserLang.startsWith('zh-MO') || browserLang.startsWith('zh-BN') ||
+                          browserLang.startsWith('zh-ID')) {
+                    savedLang = 'zh-TW';  // 繁體中文地區
+                } else {
+                    savedLang = 'zh-TW';  // 非中文地區也預設繁體
+                }
+            }
+            
+            const langText = document.getElementById('lang-text');
+            langText.textContent = savedLang === 'zh-TW' ? '繁' : '简';
+            updateLanguage(savedLang);
+        }
+
+        // 頁面載入完成後初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化主題
+            initTheme();
+            
+            // 初始化語言
+            initLanguage();
+            
+            // 初始化拖放功能
+            setupDragAndDrop();
+            
+            // 載入可用的轉換設定
+            fetch('/api/configs')
+                .then(response => response.json())
+                .then(configs => {
+                    console.log('可用的轉換設定:', configs);
+                })
+                .catch(error => {
+                    console.error('載入設定失敗:', error);
+                });
+        });
+    </script>
+</body>
+</html>
