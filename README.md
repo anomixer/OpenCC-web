@@ -4,11 +4,11 @@ Open Chinese Convert 網頁介面 - 支援繁簡中文轉換的線上服務
 
 ## 🖼️ 介面展示
 
-### 明亮主題
-![明亮主題介面](public/ui1.jpg)
+### 深色主題
+![深色主題介面](public/ui1.jpg)
 
-### 深色主題  
-![深色主題介面](public/ui2.jpg)
+### 明亮主題  
+![明亮主題介面](public/ui2.jpg)
 
 ## 🚀 功能特色
 
