@@ -137,6 +137,13 @@ git push
 
 ## 部署指南
 
+### 🚀 線上展示網站
+- **網址**: https://opencc-web.onrender.com/
+- **平台**: Render (Free Tier)
+- **檔案限制**: 80MB（為避免觸及平台 100MB 限制）
+- **功能**: 完整 14 種轉換模式
+- **限制**: 15分鐘無活動後自動休眠，再次訪問需等待啟動
+
 ### 推薦部署平台
 
 #### Railway (最推薦)
@@ -155,11 +162,14 @@ git push
 # 2. 選擇 "New Web Service"
 # 3. 選擇 OpenCC-web repo
 # 4. 設定建置指令：npm install
-# 5. 設定啟動指令：npm start
-# 6. 部署完成
+# 5. 設定啟動指令：node server.js
+# 6. 設定環境變數：RENDER=true
+# 7. 部署完成
 ```
 **優點**: 免費版支援完整功能、自動部署
-**限制**: 檔案上傳 100MB
+**限制**: 檔案上傳 100MB（建議設定 80MB）
+**實例**: https://opencc-web.onrender.com/
+**注意**: 15分鐘無活動後自動休眠
 
 #### Vercel (需優化)
 ```bash
@@ -190,18 +200,34 @@ git push
 
 ### 部署平台比較表
 
-| 平台 | 檔案限制 | 執行時間 | 免費額度 | 適合性 |
-|------|----------|----------|----------|--------|
-| Railway | 無限制 | 無限制 | $5/月 | ⭐⭐⭐⭐⭐ |
-| Render | 100MB | 無限制 | 無限請求 | ⭐⭐⭐⭐ |
-| Vercel | 4.5MB | 10秒 | 100GB | ⭐⭐ |
-| Cloudflare Workers | 100MB | 10ms | 100萬請求 | ⭐ |
+| 平台 | 檔案限制 | 執行時間 | 免費額度 | 適合性 | 實例 |
+|------|----------|----------|----------|--------|------|
+| Railway | 無限制 | 無限制 | $5/月 | ⭐⭐⭐⭐⭐ | - |
+| Render | 100MB* | 無限制 | 無限請求 | ⭐⭐⭐⭐ | [✅](https://opencc-web.onrender.com/) |
+| Vercel | 4.5MB | 10秒 | 100GB | ⭐⭐ | - |
+| Cloudflare Workers | 100MB | 10ms | 100萬請求 | ⭐ | - |
+
+*建議設定 80MB 以避免觸及平台限制
 
 ### 環境變數設定
 - `PORT`: 服務端口（預設 3000）
 - `NODE_ENV`: 生產環境設為 production
 
 ### 部署優化建議
+
+#### Render 檔案大小限制優化
+```javascript
+// 在 server.js 中根據平台動態設定檔案限制
+const isRender = process.env.RENDER === 'true' || process.env.NODE_ENV === 'production';
+const maxFileSize = isRender ? 80 * 1024 * 1024 : 100 * 1024 * 1024; // Render: 80MB, 本地: 100MB
+
+const upload = multer({ 
+  storage: storage,
+  limits: {
+    fileSize: maxFileSize
+  }
+});
+```
 
 #### Vercel 檔案大小限制優化
 ```javascript
@@ -225,6 +251,15 @@ const CHUNK_SIZE = 1024 * 1024; // 1MB chunks
 // 使用 AWS S3 或其他雲端儲存大檔案
 // 僅在應用伺服器處理轉換邏輯
 ```
+
+### 實際部署經驗分享
+
+#### Render 部署要點
+1. **Start Command**: 使用 `node server.js` 而非 `npm start`
+2. **環境變數**: 設定 `RENDER=true` 供程式偵測平台
+3. **檔案限制**: 建議 80MB，避免觸及平台 100MB 硬限制
+4. **休眠問題**: 免費版 15分鐘無活動後休眠，首次訪問需等待
+5. **自動部署**: GitHub 推送自動觸發重新部署
 
 ### Docker 部署（可選）
 ```dockerfile
