@@ -61,6 +61,7 @@ git submodule update --remote
 - **優點**：免費版支援完整功能
 - **限制**：檔案上傳 100MB（建議設定 80MB）
 - **部署**：自動部署，支援自訂域名
+- **環境變數**：需設定 `RENDER=true`
 - **實例**: https://opencc-web.onrender.com/
 
 #### Vercel
@@ -89,6 +90,7 @@ git submodule update --remote
 
 ### 環境變數
 - `PORT`：服務端口（預設 3000）
+- `RENDER`：Render 平台偵測（設為 `true`）
 
 ## 📁 專案結構
 
